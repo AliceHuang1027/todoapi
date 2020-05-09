@@ -1,0 +1,161 @@
+<!--Front end page-->
+<link rel = "stylesheet" href="https://cdn.jsdelivr.net/gh/andybrewer/mvp/mvp.css"/>
+<style>
+    .todo-container {
+        width:100%;
+        display:flex;
+        justify-content:space-between;
+    }
+    .todo-container > h1{
+        margin:0
+    }
+    /*why here is zero margin:0 auto; 0 is for top-bottom and auto for left-right?????*/
+    /* https://www.w3schools.com/cssref/css_selectors.asp 
+    element >element: div >p 
+    Selects all <p> elements where the parent is a <div> element 
+    */
+    .item-button{
+        margin: 0 10px; 
+        height: 34px;
+        padding:0 5px;
+        width: 80px;
+        /*top and bottowm 0 and leaft right 10px;*/
+        /*https://www.w3schools.com/cssref/pr_margin.asp */
+    }
+    .todo-edit-input{
+        margin:auto;
+        width:100%;
+        display:inline-block;
+    }
+    .save{
+        background-color:green;
+        border-color:green;
+    }
+</style>
+<main class="app-container"></main>
+
+<script>
+    const $appContainer = document.querySelector('.app-container')
+    function Todo (todo, container) {
+        const element = document.createElement('div')
+        element.append(element)
+        element.innerHTML =`
+        <section>
+        <aside class='todo-container'></aside>
+         </section>
+        `
+        const date = new Date(todo.createAt)
+        const dataStr = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`
+        let headerStr = `${todo.text}<small>${dateStr}</small>`
+        if(todo.complete){
+            headerStr = `<strike>${headerStr}</strike>`
+            //https://developer.mozilla.org/en-US/docs/Web/HTML/Element/strike
+        }
+        const todoContainer = element.querySelector('.todo-container')
+
+        const renderNormal =()=>{
+            todoContainer.innerHTML =`
+            <h1>${headerStr}</h1>
+            <section>
+                <button class="item-button edit">Edit</button>
+                <button class="item-button delete">Delete</button>
+            </section>
+            `
+            const edit = todoContainer.querySelector('.edit')
+            edit.addEventListener('click',renderEdit)
+            const $h1 = todoContainer.querySelector('h1')
+            $h1.addEventListener('click',()=>{
+                fetch(`/todolist/todos/${todo.id}`,{
+                method:'PATCH',
+                credentials:'include',
+                headers:{'content-type':'application/json'},
+                body:JSON.stringify({
+                    complete:!todo.complete
+                })
+             }).then(r=>{return r.json()}).then(render)
+            })
+
+            const $delete = todoContainer.querySelector('.delete')
+            $delete.addEventListener('click',()=>{
+                fetch(`/todolist/todos/${todo.id}`,{
+                    method:'DELETE',
+                    credentials:'include'
+                }).then(render)
+            })
+        }
+        const renderEdit = () => {
+            todoContainer.innerHTML = `
+            <input type="text" class="todo-edit-input" value="${todo.text}">
+            <section>
+            <button class="item-button cancel">Cancel</button>
+            <button class="item-button save">Save</button>
+            </section>
+        `
+        const $cancel = todoContainer.querySelector('.cancel')
+        $cancel.addEventListener('click', renderNormal)
+        const $todoInput = todoContainer.querySelector('.todo-edit-input')
+        const $save = todoContainer.querySelector('.save')
+        $save.addEventListener('click', () => {
+      // Update the todo element with new text
+        fetch(`/todolist/todos/${todo.id}`,{
+          method:'PATCH',
+          credentials:'include',
+          headers:{'content-type':'application/json'},
+          body:JSON.stringify({
+              text:$todoInput.value
+          })
+      }).then(r=>{return r.json()}).then(render)
+    })
+  }
+    renderNormal()
+    }
+    const render = () => {
+    $appContainer.innerHTML = `
+    <header>
+    <h1>Todo List</h1>
+    </header>
+    <div class="todolist">
+    <section>
+        <aside class='todo-container'>
+        <input type="text" class="todo-edit-input" value="">
+        </aside>
+    </section>
+    </div>
+  `
+    const input = $appContainer.querySelector('.todo-edit-input')
+    input.focus()
+    input.addEventListener('keyup', (e) => {
+    if (e.key==='Enter') {
+      // Tell the server to create a todo item!
+      fetch("/todolist/todos",{
+          method:'POST',
+          credentials:'include',
+          headers:{'content-type':'application/json'},
+          body:JSON.stringify({
+              text:input.value
+          })
+        }).then((r)=>{
+          console.log(r.status)
+          return r.json()
+        }).then(render)
+        }
+    })
+  
+  const $todolist = $appContainer.querySelector('.todolist')
+  // create a Todo object like this: new Todo(element, $todolist)
+  fetch("/todolist/todos",{
+      credentials: 'include',
+      headers:{'content-type':'application/json'}
+    }).then((r)=>{return r.json()}).then((body)=>{
+        body.forEach((e)=>{
+            new Todo(e,$todolist)
+        })
+  })
+
+
+}
+render()
+
+
+</script>
+
