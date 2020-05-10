@@ -38,13 +38,13 @@
     const $appContainer = document.querySelector('.app-container')
     function Todo (todo, container) {
         const element = document.createElement('div')
-        element.append(element)
+        container.append(element)
         element.innerHTML =`
         <section>
         <aside class='todo-container'></aside>
          </section>
         `
-        const date = new Date(todo.createAt)
+        const date = new Date(todo.createdAt)
         const dataStr = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`
         let headerStr = `${todo.text}<small>${dateStr}</small>`
         if(todo.complete){
