@@ -52,7 +52,7 @@ app.post("/todolist/todos",(req,res)=>{
 app.patch("/todolist/todos/:id",(req,res)=>{
     const todoId = req.params.id
     
-    if(req.body.complete){
+    if(req.body.complete !== undefined){
         todos.forEach((e)=>{
             if(e.id===todoId){
                 e.complete=req.body.complete
