@@ -53,14 +53,14 @@ app.patch("/todolist/todos/:id",(req,res)=>{
     const todoId = req.params.id
     
     if(req.body.complete){
-       return todos.forEach((e)=>{
+        todos.forEach((e)=>{
             if(e.id===todoId){
                 e.complete=req.body.complete
             }
         })
     }
     if(req.body.text){
-        return todos.forEach((e)=>{
+         todos.forEach((e)=>{
             if(e.id===todoId){
                 e.text=req.body.text
             }
