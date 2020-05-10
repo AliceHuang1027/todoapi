@@ -47,14 +47,12 @@ app.post("/todolist/todos",(req,res)=>{
     const $id = uuid()
     todos.push({"id":$id,"complete":false,"text":req.body.text,"createdAt":Date.now()})
     
-    res.sendFile("index.html",{root:__dirname})
+    res.json(todos)
 })
 app.patch("/todolist/todos/:id",(req,res)=>{
     const todoId = req.params.id
-    const item = todos.find((e)=>{
-        return e.id===todoId
-    })
-    if(req.body.complete!=item.complete){
+    
+    if(req.body.complete){
        return todos.forEach((e)=>{
             if(e.id===todoId){
                 e.complete=req.body.complete
@@ -68,7 +66,7 @@ app.patch("/todolist/todos/:id",(req,res)=>{
             }
         })
     }
-    res.sendFile("index.html",{root:__dirname})
+    res.json(todos)
 })
 
 app.delete("/todolist/todos/:id",(req,res)=>{
